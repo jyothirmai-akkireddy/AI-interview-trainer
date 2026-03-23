@@ -68,10 +68,8 @@ Return ONLY the question text.
       data.choices?.[0]?.message?.content?.trim();
 
     return NextResponse.json({ question });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to generate question" },
-      { status: 500 }
-    );
-  }
+} catch (err) {
+  console.error("POST /generate-summary error:", err);
+  return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 });
+}
 }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { question, answer } = await req.json();
+    const { question, answer } = await req.json() as { question: string; answer: string };
 
     if (!question || !answer) {
       return NextResponse.json(
@@ -71,29 +71,28 @@ Scoring Guide:
           messages: [
             {
               role: "system",
-              content:
-                "You are a strict and fair technical interviewer.",
+              content: "You are a strict and fair technical interviewer.",
             },
             {
               role: "user",
               content: prompt,
             },
           ],
-          temperature: 0.3, // IMPORTANT: lower randomness
+          temperature: 0.3, // lower randomness
         }),
       }
     );
 
     const data = await response.json();
 
-    const content =
-      data.choices?.[0]?.message?.content?.trim();
+    const content = data.choices?.[0]?.message?.content?.trim();
 
     let parsed;
 
     try {
-      parsed = JSON.parse(content);
-    } catch {
+      parsed = JSON.parse(content!);
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", parseError, content);
       return NextResponse.json(
         { error: "Invalid AI response format" },
         { status: 500 }
@@ -102,6 +101,7 @@ Scoring Guide:
 
     return NextResponse.json(parsed);
   } catch (error) {
+    console.error("POST /evaluate-answer error:", error);
     return NextResponse.json(
       { error: "Failed to evaluate answer" },
       { status: 500 }
