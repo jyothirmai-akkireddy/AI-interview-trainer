@@ -21,11 +21,8 @@ Interviewer tone: ${tone}
 
 Rules:
 - Ask ONE question only.
-- Do NOT include explanations.
-- Do NOT include answers.
-- Do NOT include numbering.
-- Make it sound natural.
-- Keep it concise but realistic.
+- Do NOT include explanations or answers.
+- Make it sound natural and concise.
 - If technical role → ask role-specific technical questions.
 - If HR/behavioral role → ask behavioral questions.
 - Increase depth based on difficulty:
@@ -52,10 +49,7 @@ Return ONLY the question text.
               content:
                 "You are a strict but professional technical interviewer.",
             },
-            {
-              role: "user",
-              content: prompt,
-            },
+            { role: "user", content: prompt },
           ],
           temperature: 0.7,
         }),
@@ -63,13 +57,14 @@ Return ONLY the question text.
     );
 
     const data = await response.json();
-
-    const question =
-      data.choices?.[0]?.message?.content?.trim();
+    const question = data?.choices?.[0]?.message?.content?.trim() || "";
 
     return NextResponse.json({ question });
-} catch (err) {
-  console.error("POST /generate-summary error:", err);
-  return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 });
-}
+  } catch (err: unknown) {
+    console.error("POST /generate-summary error:", err);
+    return NextResponse.json(
+      { error: "Failed to generate summary" },
+      { status: 500 }
+    );
+  }
 }
